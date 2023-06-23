@@ -38,8 +38,8 @@ export class OkImpl<T> extends ResultBase<T, never> {
     return new OkImpl(fn(this.value))
   }
 
-  async mapAsync<U, E>(fn: AsyncMapResolver<T, U>): Promise<OkImpl<U>> {
-    return new OkImpl(await fn(this.value))
+  mapAsync<U, E>(fn: AsyncMapResolver<T, U>): OkImpl<Promise<U>> {
+    return new OkImpl(fn(this.value))
   }
 
   mapOr<U, E>(fn: MapOrResolver<T, U>, _fallback: U): OkImpl<U> {

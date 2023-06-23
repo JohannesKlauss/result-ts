@@ -39,20 +39,20 @@ export class ErrImpl<E> extends ResultBase<never, E> {
     throw this.error
   }
 
-  map<U>(_fn: MapResolver<never, U>): ErrImpl<E> {
+  map<U>(_fn: unknown): ErrImpl<E> {
     return this
   }
 
-  async mapAsync<U>(_fn: AsyncMapResolver<never, U>): Promise<ErrImpl<E>> {
+  mapAsync<U>(_fn: unknown): ErrImpl<E> {
     return this
   }
 
-  mapOr<U>(_fn: MapOrResolver<never, U>, fallback: U): OkImpl<U> {
+  mapOr<U>(_fn: unknown, fallback: U): OkImpl<U> {
     return new OkImpl(fallback)
   }
 
   async mapOrAsync<U>(
-    _fn: AsyncMapOrResolver<never, U>,
+    _fn: unknown,
     fallback: U,
   ): Promise<OkImpl<U>> {
     return new OkImpl(fallback)

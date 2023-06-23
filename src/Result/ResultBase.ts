@@ -33,7 +33,7 @@ export abstract class ResultBase<T, E> {
 
   abstract map<U>(fn: MapResolver<T, U>): Result<U, E>
 
-  abstract mapAsync<U>(fn: AsyncMapResolver<T, U>): Promise<Result<U, E>>
+  abstract mapAsync<U>(fn: AsyncMapResolver<T, U>): Result<Promise<U>, E>
 
   abstract mapOr<U>(fn: MapOrResolver<T, U>, defaultValue: U): Result<U, E>
 

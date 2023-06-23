@@ -72,25 +72,27 @@ describe('Ok', () => {
         .map((val) => val + 1)
         .map((val) => val + 1)
         .map((val) => val + 1)
-        .unwrap()
+        .unwrap(),
     ).toBe(4)
   })
 
-  it.skip('should chain asynchronous methods', async function () {
+  it('should chain asynchronous methods', async function () {
     const result = new Ok(1)
-
-    await result
-      .mapAsync(async (val) => val + 1)
-      .mapAsync(async (val) => await val + 1)
-      .mapAsync(async (val) => await val + 1)
-      .unwrap()
 
     expect(
       await result
         .mapAsync(async (val) => val + 1)
-        .mapAsync(async (val) => val + 1)
-        .mapAsync(async (val) => val + 1)
-        .unwrap()
+        .mapAsync(async (val) => (await val) + 1)
+        .mapAsync(async (val) => (await val) + 1)
+        .unwrap(),
     ).toBe(4)
-  });
+
+    expect(
+      await result
+        .map(async (val) => val + 1)
+        .map(async (val) => (await val) + 1)
+        .map(async (val) => (await val) + 1)
+        .unwrap(),
+    ).toBe(4)
+  })
 })
