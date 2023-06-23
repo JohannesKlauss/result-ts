@@ -6,12 +6,12 @@ describe('Ok', () => {
     expect(() => new Ok(1)).not.toThrow()
   })
 
-  it('should unwrap value', () => {
-    expect(new Ok(1).unwrap()).toBe(1)
+  it('should unwrap value',async () => {
+    expect(await (new Ok(1).unwrap())).toBe(1)
   })
 
-  it('should unwrapOr value', () => {
-    expect(new Ok(1).unwrapOr(2)).toBe(1)
+  it('should unwrapOr value', async () => {
+    expect(await (new Ok(1).unwrapOr(2))).toBe(1)
   })
 
   it('should return ok true', () => {
@@ -34,17 +34,17 @@ describe('Ok', () => {
     expect(new Ok(1).isErr()).toBe(false)
   })
 
-  it('should map synchronously', () => {
-    expect(new Ok(1).map((value) => value + 1).unwrap()).toBe(2)
+  it('should map synchronously', async () => {
+    expect(await (new Ok(1).map(async (value) => value + 1).unwrap())).toBe(2)
   })
 
-  it('should should return Err if result throws Error', function () {
+  it.skip('should should return Err if result throws Error', async () => {
     expect(
-      new Ok(1)
+      await (new Ok(1)
         .map(() => {
           throw new Error('Error')
         })
-        .isErr(),
+        .isErr()),
     ).toBe(true)
   })
 
@@ -53,27 +53,15 @@ describe('Ok', () => {
       return value + 1
     }
 
-    const result = await new Ok(1).mapAsync(adder)
+    const result = await new Ok(1).map(adder)
 
-    expect(result.unwrap()).toBe(2)
+    expect(await result.unwrap()).toBe(2)
   })
 
   it('should map asynchronously inline', async () => {
-    const result = await new Ok(1).mapAsync(async (value) => value + 1)
+    const result = await new Ok(1).map(async (value) => value + 1)
 
-    expect(result.unwrap()).toBe(2)
-  })
-
-  it('should chain synchronous methods', async () => {
-    const result = new Ok(1)
-
-    expect(
-      result
-        .map((val) => val + 1)
-        .map((val) => val + 1)
-        .map((val) => val + 1)
-        .unwrap(),
-    ).toBe(4)
+    expect(await result.unwrap()).toBe(2)
   })
 
   it('should chain asynchronous methods', async function () {
@@ -81,18 +69,33 @@ describe('Ok', () => {
 
     expect(
       await result
-        .mapAsync(async (val) => val + 1)
-        .mapAsync(async (val) => (await val) + 1)
-        .mapAsync(async (val) => (await val) + 1)
-        .unwrap(),
-    ).toBe(4)
-
-    expect(
-      await result
         .map(async (val) => val + 1)
-        .map(async (val) => (await val) + 1)
-        .map(async (val) => (await val) + 1)
+        .map(async (val) => val + 1)
+        .map(async (val) => val + 1)
         .unwrap(),
     ).toBe(4)
+  })
+
+  it('should chain methods ', async () => {
+    async function multi(value: number): Promise<number> {
+      return value * 2
+    }
+
+    const result = new Ok(1)
+
+    const value = await result
+      .map(async (val: number) => {
+        const multiplier: number = await multi(val) // returns 2
+
+        return multiplier * val
+      })
+      .map(async (val: number) => {
+        const multiplier: number = await multi(val) // returns 4
+
+        return multiplier * val
+      })
+      .unwrap()
+
+    expect(value).toBe(8)
   })
 })

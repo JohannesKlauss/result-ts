@@ -1,20 +1,20 @@
-import { AsyncResult, Result } from '../types'
 import { OkImpl } from './OkImpl'
 import { ErrImpl } from './ErrImpl'
 
-export type OrResolver<T, E> = Result<T, E> | (() => Result<T, E>)
-export type AsyncOrResolver<T, E> =
-  | AsyncResult<T, E>
-  | (() => AsyncResult<T, E>)
+export type Result<T, E> = OkImpl<T> | ErrImpl<E>
+export type AsyncResult<T, E> = Promise<Result<T, E>>
 
-export type AndThenResolver<T, U, E> = (value: T) => Result<U, E>
-export type AsyncAndThenResolver<T, U, E> = (value: T) => AsyncResult<U, E>
+export type OrResolver<T, E> =
+  | Result<T, E>
+  | (() => Result<T, E>)
 
-export type MapResolver<T, U> = (value: T) => U
-export type AsyncMapResolver<T, U> = (value: T) => Promise<U>
+export type FlatMapResolver<T, U, F> = (value: T) => Result<U, F>
 
-export type MapOrResolver<T, U> = (value: T) => U
-export type AsyncMapOrResolver<T, U> = (value: T) => Promise<U>
+export type MapResolver<T, U> = (value: T) => Promise<U>
+
+export type MapErrResolver<E, F> = (err: E) => Promise<F>
+
+export type MapOrResolver<T, U> = (value: T) => Promise<U>
 
 export abstract class ResultBase<T, E> {
   abstract readonly kind: 'Ok' | 'Err'
@@ -27,26 +27,19 @@ export abstract class ResultBase<T, E> {
 
   abstract isErr(): this is ErrImpl<E>
 
-  abstract unwrap(): T | E
+  abstract unwrap(): Promise<T>
 
-  abstract unwrapOr(defaultValue: T): T
+  abstract unwrapErr(): Promise<E>
+
+  abstract unwrapOr(defaultValue: T): Promise<T>
 
   abstract map<U>(fn: MapResolver<T, U>): Result<U, E>
 
-  abstract mapAsync<U>(fn: AsyncMapResolver<T, U>): Result<Promise<U>, E>
+  abstract mapErr<F>(fn: MapErrResolver<E, F>): Result<T, F>
 
   abstract mapOr<U>(fn: MapOrResolver<T, U>, defaultValue: U): Result<U, E>
 
-  abstract mapOrAsync<U>(
-    fn: AsyncMapOrResolver<T, U>,
-    defaultValue: U,
-  ): AsyncResult<U, E>
-
   abstract or(alternative: OrResolver<T, E>): Result<T, E>
 
-  abstract orAsync(alternative: AsyncOrResolver<T, E>): AsyncResult<T, E>
-
-  abstract andThen<U>(fn: AndThenResolver<T, U, E>): Result<U, E>
-
-  abstract andThenAsync<U>(fn: AsyncAndThenResolver<T, U, E>): AsyncResult<U, E>
+  abstract flatMap<U, F>(fn: FlatMapResolver<T, U, F>): Result<U, F>
 }
