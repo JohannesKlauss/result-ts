@@ -1,0 +1,37 @@
+{
+  "name": "result-ts",
+  "version": "1.0.0",
+  "description": "A Rust inspired Result type for Typescript that supports async capabilities",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JohannesKlauss/result-ts.git"
+  },
+  "author": {
+    "name": "Johannes Klauss",
+    "email": "klauss.johannes@gmail.com"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/JohannesKlauss/result-ts/issues"
+  },
+  "homepage": "https://github.com/JohannesKlauss/result-ts#readme",
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "node esbuild.js",
+    "prepare": "npm run build",
+    "test": "vitest",
+    "test:ci": "vitest --ci",
+    "format": "prettier --write ./src",
+    "lint": "prettier --check ./src && eslint --ext .ts ./src"
+  },
+  "devDependencies": {
+    "conditional-type-checks": "1.0.6",
+    "esbuild": "0.18.6",
+    "eslint": "8.43.0",
+    "prettier": "2.8.8",
+    "typescript": "5.1.3",
+    "vitest": "0.32.2"
+  }
+}
