@@ -6,12 +6,12 @@ describe('Ok', () => {
     expect(() => new Ok(1)).not.toThrow()
   })
 
-  it('should unwrap value',async () => {
-    expect(await (new Ok(1).unwrap())).toBe(1)
+  it('should unwrap value', async () => {
+    expect(await new Ok(1).unwrap()).toBe(1)
   })
 
   it('should unwrapOr value', async () => {
-    expect(await (new Ok(1).unwrapOr(2))).toBe(1)
+    expect(await new Ok(1).unwrapOr(2)).toBe(1)
   })
 
   it('should return ok true', () => {
@@ -35,16 +35,16 @@ describe('Ok', () => {
   })
 
   it('should map synchronously', async () => {
-    expect(await (new Ok(1).map(async (value) => value + 1).unwrap())).toBe(2)
+    expect(await new Ok(1).map(async (value) => value + 1).unwrap()).toBe(2)
   })
 
   it.skip('should should return Err if result throws Error', async () => {
     expect(
-      await (new Ok(1)
+      await new Ok(1)
         .map(() => {
           throw new Error('Error')
         })
-        .isErr()),
+        .isErr(),
     ).toBe(true)
   })
 

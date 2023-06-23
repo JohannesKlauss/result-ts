@@ -4,9 +4,7 @@ import { ErrImpl } from './ErrImpl'
 export type Result<T, E> = OkImpl<T> | ErrImpl<E>
 export type AsyncResult<T, E> = Promise<Result<T, E>>
 
-export type OrResolver<T, E> =
-  | Result<T, E>
-  | (() => Result<T, E>)
+export type OrResolver<T, E> = Result<T, E> | (() => Result<T, E>)
 
 export type FlatMapResolver<T, U, F> = (value: T) => Result<U, F>
 

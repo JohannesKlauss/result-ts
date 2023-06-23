@@ -68,15 +68,13 @@ export class OkImpl<T> extends ResultBase<T, never> {
 
   flatMap<U, F>(fn: FlatMapResolver<T, U, F>): Result<U, F> {
     // TODO: NOT SURE HOW TO SOLVE THIS. IF WE WANT TO RETURN A RESULT WE WOULD ALSO HAVE TO AWAIT THE PROMISE WHICH WE CANNOT DO HERE.
-    return this.valuePromise
-      .then(fn)
-      .then(async (result) => {
-        if (result instanceof OkImpl) {
-          return new OkImpl(result.unwrap())
-        } else {
-          return new ErrImpl(result.unwrapErr())
-        }
-      })
+    return this.valuePromise.then(fn).then(async (result) => {
+      if (result instanceof OkImpl) {
+        return new OkImpl(result.unwrap())
+      } else {
+        return new ErrImpl(result.unwrapErr())
+      }
+    })
   }
 }
 

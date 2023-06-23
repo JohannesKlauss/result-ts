@@ -1,10 +1,11 @@
 import {
-  FlatMapResolver, MapErrResolver,
+  FlatMapResolver,
+  MapErrResolver,
   MapResolver,
   OrResolver,
   ResultBase,
 } from './ResultBase'
-import {AsyncResult, Result} from '../types'
+import { Result } from '../types'
 import { OkImpl } from './OkImpl'
 
 export class ErrImpl<E> extends ResultBase<never, E> {
