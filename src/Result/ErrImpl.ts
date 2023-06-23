@@ -1,29 +1,33 @@
 import {
-  AndThenResolver,
-  AsyncAndThenResolver,
-  AsyncMapOrResolver,
-  AsyncMapResolver,
-  AsyncOrResolver,
-  MapOrResolver,
+  FlatMapResolver, MapErrResolver,
   MapResolver,
   OrResolver,
   ResultBase,
 } from './ResultBase'
-import { AsyncResult, Result } from '../types'
+import {AsyncResult, Result} from '../types'
 import { OkImpl } from './OkImpl'
 
 export class ErrImpl<E> extends ResultBase<never, E> {
-  readonly kind: 'Err' = 'Err'
+  private readonly valuePromise: Promise<E>
 
-  readonly ok: boolean = false
-
-  readonly err: boolean = true
-
-  constructor(readonly error: E) {
+  constructor(value: Promise<E> | E) {
     super()
+    this.valuePromise = Promise.resolve(value)
   }
 
-  isOk(): this is OkImpl<never> {
+  get kind() {
+    return 'Err' as const
+  }
+
+  get ok() {
+    return false
+  }
+
+  get err() {
+    return true
+  }
+
+  isOk(): this is never {
     return false
   }
 
@@ -31,54 +35,35 @@ export class ErrImpl<E> extends ResultBase<never, E> {
     return true
   }
 
-  unwrap(): E {
-    return this.error
+  unwrap(): never {
+    throw new Error('Called unwrap on Err value')
   }
 
-  unwrapOr(_defaultValue: never): never {
-    throw this.error
+  unwrapErr(): Promise<E> {
+    return this.valuePromise
   }
 
-  map<U>(_fn: unknown): ErrImpl<E> {
+  unwrapOr<T>(defaultValue: T): Promise<T> {
+    return Promise.resolve(defaultValue)
+  }
+
+  map<U>(fn: MapResolver<never, U>): ErrImpl<E> {
     return this
   }
 
-  mapAsync<U>(_fn: unknown): ErrImpl<E> {
-    return this
+  mapErr<F>(fn: MapErrResolver<E, F>): ErrImpl<F> {
+    return new ErrImpl(this.valuePromise.then(fn))
   }
 
-  mapOr<U>(_fn: unknown, fallback: U): OkImpl<U> {
-    return new OkImpl(fallback)
+  mapOr<U>(fn: MapResolver<never, U>, defaultValue: U): OkImpl<U> {
+    return new OkImpl(defaultValue)
   }
 
-  async mapOrAsync<U>(
-    _fn: unknown,
-    fallback: U,
-  ): Promise<OkImpl<U>> {
-    return new OkImpl(fallback)
+  or<U>(alternative: OrResolver<U, E>): Result<U, E> {
+    return typeof alternative === 'function' ? alternative() : alternative
   }
 
-  or(alternative: OrResolver<never, E>): Result<never, E> {
-    if (typeof alternative === 'function') {
-      return alternative()
-    }
-    return alternative
-  }
-
-  async orAsync(alternative: AsyncOrResolver<never, E>): AsyncResult<never, E> {
-    if (typeof alternative === 'function') {
-      return alternative()
-    }
-    return alternative
-  }
-
-  andThen<U>(_fn: AndThenResolver<never, U, E>): ErrImpl<E> {
-    return this
-  }
-
-  async andThenAsync<U>(
-    _fn: AsyncAndThenResolver<never, U, E>,
-  ): Promise<ErrImpl<E>> {
+  flatMap(fn: FlatMapResolver<never, never, never>): Result<never, E> {
     return this
   }
 }
