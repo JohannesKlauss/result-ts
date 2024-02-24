@@ -29,7 +29,7 @@
   "devDependencies": {
     "conditional-type-checks": "1.0.6",
     "esbuild": "0.18.6",
-    "eslint": "8.43.0",
+    "eslint": "8.57.0",
     "prettier": "2.8.8",
     "typescript": "5.1.3",
     "vitest": "0.32.2"
